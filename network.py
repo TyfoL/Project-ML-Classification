@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import datetime
 device = torch.device("cpu")
 
-
+# By Xueyao JI ----------------------------------------
 class array2dict(torch.utils.data.Dataset):
 
     def __init__(self, X_train, y_train):
@@ -23,7 +23,7 @@ class array2dict(torch.utils.data.Dataset):
         dict_tensor  = { 'feature' : feature, 'label' : label }
         return dict_tensor
 
-
+# By Xueyao JI ----------------------------------------
 def accuracy(model, data_tensor):
     n_correct, n_wrong = 0, 0
     for i in range(len(data_tensor)):
@@ -39,10 +39,10 @@ def accuracy(model, data_tensor):
             n_wrong += 1
     return (n_correct*1.0)/(n_correct+n_wrong)
 
-
-class Net(torch.nn.Module):
+# By Xueyao JI ----------------------------------------
+class NetSimple(torch.nn.Module):
     def __init__(self):
-        super(Net, self).__init__()
+        super(NetSimple, self).__init__()
         self.hid1 = torch.nn.Linear(4, 8)
         self.hid2 = torch.nn.Linear(8, 8)
         self.oupt = torch.nn.Linear(8, 1)
@@ -60,8 +60,37 @@ class Net(torch.nn.Module):
         output = torch.sigmoid(self.oupt(output)) 
         return output
 
+# By Xueyao JI ----------------------------------------
+class NetDeeper(torch.nn.Module):
+    def __init__(self):
+        super(NetDeeper, self).__init__()
+        self.hid1 = torch.nn.Linear(24, 36)
+        self.hid2 = torch.nn.Linear(36, 20)
+        self.hid3 = torch.nn.ReLU()
+        self.hid4 = torch.nn.Linear(20, 8)
+        self.oupt = torch.nn.Linear(8, 1)
 
-def network(data, batch_size=10, n_epochs=100, lr=0.01):
+        torch.nn.init.xavier_uniform_(self.hid1.weight) 
+        torch.nn.init.zeros_(self.hid1.bias)
+        torch.nn.init.xavier_uniform_(self.hid2.weight) 
+        torch.nn.init.zeros_(self.hid2.bias)
+        #torch.nn.init.xavier_uniform_(self.hid3.weight) 
+        #torch.nn.init.zeros_(self.hid3.bias)
+        torch.nn.init.xavier_uniform_(self.hid4.weight) 
+        torch.nn.init.zeros_(self.hid4.bias)
+        torch.nn.init.xavier_uniform_(self.oupt.weight) 
+        torch.nn.init.zeros_(self.oupt.bias)
+
+    def forward(self, x):
+        output = torch.tanh(self.hid1(x)) 
+        output = torch.tanh(self.hid2(output))
+        output = torch.tanh(self.hid3(output))
+        output = torch.tanh(self.hid4(output))
+        output = torch.sigmoid(self.oupt(output)) 
+        return output
+
+# By Xueyao JI ----------------------------------------
+def network(data, net="simple", batch_size=10, n_epochs=100, lr=0.01):
 
     X_train, X_test, y_train, y_test = data[0], data[1], data[2], data[3]
     train_tensor = array2dict(X_train, y_train)
@@ -71,7 +100,10 @@ def network(data, batch_size=10, n_epochs=100, lr=0.01):
     train_losses, valid_losses = [], []
 
     # get model
-    net = Net().to(device)
+    if net == "simple":
+        net = NetSimple().to(device)
+    elif net == "deeper":
+        net = NetDeeper().to(device)
     net = net.train()
     criterion = torch.nn.BCELoss() # binary cross entropy
     optimizer = torch.optim.SGD(net.parameters(), lr=lr)
