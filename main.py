@@ -1,17 +1,17 @@
 import os
 import time
-from utils import get_data
+from utils import data_preprocessing
 #from network import network
 from methods import logistic_regression
 
 if __name__ == "__main__":
-	
-	# load data
-	data_path_1 = "./data/data_banknote_authentication.txt" # print(data.shape) (1371,5)
-	data_path_2 = "./data/kidney_disease.csv" # print(data.shape) (400,26)
-	data_path = data_path_1
 
-	X_train, X_test, y_train, y_test = get_data(data_path, test_size=0.2)
+	# load data
+	data_path_1 = "./data/data_banknote_authentication.txt"
+	data_path_2 = "./data/kidney_disease.csv"
+	data_path = data_path_1
+	#data_path = data_path_2
+	X_train, X_test, y_train, y_test = data_preprocessing(data_path, test_size=0.2)
 
 	# choose from logistic_regression
 	method = "logistic_regression"
@@ -25,4 +25,3 @@ if __name__ == "__main__":
 			print("logistic_regression is not suitable for current dataset!")
 	end = time.time()
 	print("running time is ", (end-start), "s")
- 
